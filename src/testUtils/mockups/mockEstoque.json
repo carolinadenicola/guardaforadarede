@@ -1,0 +1,29 @@
+{
+    "retorno": [
+      {
+        "codigoItem": "123456",
+        "codigoInteiro": "123456-001",
+        "local": "LOCAL01",
+        "qtdeAtual": 0,
+        "qtdeFinal": 10,
+        "status": 3
+      },
+      {
+        "codigoItem": "654321",
+        "codigoInteiro": "654321-002",
+        "local": "LOCAL02",
+        "qtdeAtual": 5,
+        "qtdeFinal": 5,
+        "status": 3
+      },
+      {
+        "codigoItem": "111222",
+        "codigoInteiro": "111222-003",
+        "local": "LOCAL03",
+        "qtdeAtual": 2,
+        "qtdeFinal": 8,
+        "status": 3
+      }
+    ]
+  }
+  

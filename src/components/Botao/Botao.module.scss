@@ -1,0 +1,89 @@
+@import "../../styles/variables";
+@import "../../styles/breakpoints";
+
+.botao{
+    padding: 10px;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    
+    &__primary{
+        background-color: $primary;
+        border: 2px solid $primary;
+        color: #fff;
+        &:hover{
+            background-color: $primary-dark;
+            transition:0.2s ease all; 
+        }
+    }
+
+    &__secondary{
+        background-color: $secondary;
+        border: 2px solid $secondary-dark;
+        color: $secondary-dark;
+        font-weight: bold;
+        &:hover{
+            background-color: $secondary-dark;
+            color: #fff;
+            transition:0.2s ease all; 
+        }
+    }
+
+    &__danger{
+        background-color: $danger;
+        border: none;
+        color: #fff;
+        &:hover{
+            background-color: $dark-red;
+            transition:0.2s ease all; 
+        }
+    }
+
+    &__warning{
+        background-color: $warning;
+        border: none;
+        color: #fff;
+        &:hover{
+            background-color: $dark-yellow;
+            transition:0.2s ease all; 
+        }
+    }
+    &__success{
+        background-color: $success;
+        border: none;
+        color: #fff;
+        &:hover{
+            background-color: $dark-green;
+            transition:0.2s ease all;
+        }
+    }
+
+    &__exsmall{
+        font-size: 14px;
+        padding: 6px 10px;
+    }
+
+    &__small{
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+
+    &__medium{
+        font-size: 16px;
+        padding: 11px 20px;
+    }
+
+    &__large{
+        font-size: 18px;
+        padding: 12px 24px;
+    }
+
+    &__fullSize{
+        width: 100%;
+        font-size: 16px;
+        padding: 11px 20px;
+    }
+}

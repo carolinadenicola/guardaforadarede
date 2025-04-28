@@ -1,0 +1,195 @@
+.container {
+    padding: 16px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    color: #34408E;
+  }
+  .header h1 {
+    // font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .voltar {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  .inputContainer {
+    margin-bottom: 16px;
+  }
+
+  .inputContainer label {
+    color: #34408E;
+  }
+  
+  .inputContainer input {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 7px;
+    border: 1px solid #BBBBBB;
+    background-color: #F2F2F2;
+  }
+
+  .tableContainer {
+    background-color: #F2F2F2;
+    border: 1px solid #BBBBBB;
+    border-radius: 7px;
+    padding: 8px;
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 7px;
+    overflow: hidden;
+  }
+  
+  .table th,
+  .table td {
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .table th {
+    background-color: #F2F2F2;
+    // font-weight: bold;
+    border: none;
+  }
+  
+  .table td {
+    border-top: 2px solid #F2F2F2;
+    border-bottom: 2px solid #F2F2F2;
+    border-left: none;
+    border-right: none;
+  }
+
+/* Arredondamento das extremidades */
+.rounded-top-left {
+    border-top-left-radius: 7px;
+  }
+  
+  .rounded-top-right {
+    border-top-right-radius: 7px;
+  }
+  
+  .rounded-bottom-left {
+    border-bottom-left-radius: 7px;
+  }
+  
+  .rounded-bottom-right {
+    border-bottom-right-radius: 7px;
+  }
+  
+  /* Cor das linhas */
+  .verde {
+    background-color: #d4edda;
+  }
+  
+  .amarelo {
+    background-color: #fff3cd;
+  }
+
+  /* Borda horizontal para todas as células */
+.table td {
+    border-top: 1px solid #F2F2F2;
+  }
+  
+  .table tr:last-child td {
+    border-bottom: 1px solid #F2F2F2; /* Última linha com borda inferior */
+  }
+  
+  
+  /* Remoção de borda lateral entre células */
+  .table td:not(:first-child):not(:last-child) {
+    border-left: none;
+    border-right: none;
+  }
+
+  .th{
+    color: #34408E;
+    font-weight: normal;
+  }
+  
+  .th, .td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .verde {
+    background-color: #7EC896;
+  }
+  
+  .amarelo {
+    background-color: #DED772;
+  }
+  
+  .cinza {
+    background-color: #E0E0E0; /* Cinza claro */
+  }
+
+  .footer {
+    display: flex;
+    justify-content: flex-end; /* Centraliza o botão */
+    margin-top: 16px; /* Espaçamento acima do botão */
+  }
+  
+  .footer button {
+    background-color: #34408E; /* Cor de fundo azul */
+    color: #ffffff; /* Texto branco */
+    border: none;
+    border-radius: 7px; /* Bordas arredondadas */
+    padding: 12px 24px; /* Espaçamento interno */
+    font-size: 16px; /* Tamanho da fonte */
+    cursor: pointer; /* Cursor de ponteiro */
+    transition: background-color 0.3s ease; /* Suaviza a transição */
+  }
+  
+  .footer button:hover {
+    background-color: #2b367c; /* Cor mais escura ao passar o mouse */
+  }
+  
+  .footer button:active {
+    background-color: #1f275c; /* Cor mais escura ao clicar */
+  }
+
+  .mensagemVazia {
+    text-align: center;
+    color: #34408E; /* Azul do tema */
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+
+  .loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: #34408E;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .spinner {
+    font-size: 2rem;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  

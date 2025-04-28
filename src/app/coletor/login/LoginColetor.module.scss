@@ -1,0 +1,38 @@
+@import "../../../styles/variables";
+@import "../../../styles/breakpoints";
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+.loginColetorPage{
+    display: flex;
+    font-family: 'Nunito', sans-serif;
+    text-align: center;
+    vertical-align: center;
+    background-color: #D9D9D9;
+
+    .box{
+        margin: auto;
+        border-radius: 30px;
+        width: 90%;
+        height: 90%;
+        padding: 10px;
+       
+        label{
+            font-size: 1rem;
+            font-weight:500;
+            color: #34408E;
+            width: 90%;
+        }
+        input{
+            border: none;
+            background-color: rgba($color: #ffffff, $alpha: 0.8);
+            font-size: 1.7rem;
+            margin-bottom: 15px;
+            margin-top: 5px;
+            border-radius: 7px;
+            width: 100%;
+            &:focus{
+                outline: none;
+            }
+        }
+    }
+}
