@@ -30,36 +30,40 @@ const ModalContagem: React.FC<ModalContagemProps> = ({
     }
   }, [primeiraQuantidade]);
 
-  const adicionarQuantidade = () => {
-    if (!inputCodigo.includes("|") || !inputCodigo.includes("/")) {
-      onError("Formato inválido do código inserido!");
-      return;
-    }
+        const adicionarQuantidade = () => {
+          
+          console.log(inputCodigo)
+          if (!inputCodigo.includes("|") || !inputCodigo.includes("/")) {
+            onError("Formato inválido do código inserido!");
+            return;
+          }
 
-    const [codigoBase, resto] = inputCodigo.split("|");
-    const [quantidadeStr] = resto.split("/");
-    const quantidade = parseInt(quantidadeStr, 10);
+          const [codigoBase, resto] = inputCodigo.split("|");
+          const [quantidadeStr, nota] = resto.split("/");
+          const quantidade = parseInt(quantidadeStr, 10);
 
-    if (codigoBase !== codigoItem) {
-      onError(`Código incorreto! Esperado: ${codigoItem}, Inserido: ${codigoBase}`);
-      return;
-    }
+          const chaveDocumentoReconstruida = `${codigoBase}/${nota}`;
 
-    if (isNaN(quantidade) || quantidade <= 0) {
-      onError("Quantidade inválida!");
-      return;
-    }
+          if (chaveDocumentoReconstruida !== codigoItem) {
+            onError(`Código incorreto! Esperado: ${codigoItem}, Inserido: ${chaveDocumentoReconstruida}`);
+            return;
+          }
 
-    const novoTotal = quantidadeAtual + quantidade;
+          if (isNaN(quantidade) || quantidade <= 0) {
+            onError("Quantidade inválida!");
+            return;
+          }
 
-    if (novoTotal > qtdeFinal) {
-      onError(`A quantidade inserida (${novoTotal}) ultrapassa a quantidade final (${qtdeFinal}).`);
-      return;
-    }
+          const novoTotal = quantidadeAtual + quantidade;
 
-    setQuantidadeAtual(novoTotal);
-    setInputCodigo("");
-  };
+          if (novoTotal > qtdeFinal) {
+            onError(`A quantidade inserida (${novoTotal}) ultrapassa a quantidade final (${qtdeFinal}).`);
+            return;
+          }
+
+          setQuantidadeAtual(novoTotal);
+          setInputCodigo("");
+        };
 
   return (
     <div className={styles.modalBackdrop}>

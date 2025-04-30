@@ -30,6 +30,11 @@ export default function Estoque() {
   const [showReservaModal, setShowReservaModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [locaisReservados, setLocaisReservados] = useState<{ local: string, quantidade: number }[]>([]);
+
+
+
+
   const [showContagemModal, setShowContagemModal] = useState(false);
   const [quantidadeContada, setQuantidadeContada] = useState(0);
   const [itemEmContagem, setItemEmContagem] = useState<ItemColetor | null>(null);
@@ -116,7 +121,59 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
   };
 
 
+  const confirmarReservaFinal = async (locais: { local: string; quantidade: number }[]) => {
+    if (!itemParaReserva) return;
+  
+    try {
+      const usuarioLogado = "jgriti";
+      const payloadTransferencia = {
+        documentos: [
+          {
+            chaveDocumento: itemParaReserva.codigoInteiro,
+            usuario: usuarioLogado,
+            localizacoes: locais.map(loc => ({
+              quantidade: loc.quantidade,
+              localizacao: loc.local
+            }))
+          }
+        ]
+      };
+  
+      console.log("Payload enviado (transferenciarecebimento):", JSON.stringify(payloadTransferencia, null, 2));
+  
+      // Primeiro faz a chamada para transferenciarecebimento
+      const respostaTransferencia = await APITotvs.post("/guardaMaterial/transferenciarecebimento", payloadTransferencia);
 
+      console.log(respostaTransferencia)
+  
+      // Verifica se houve sucesso
+      if (respostaTransferencia.data?.sucesso?.length > 0) {
+
+        setModalMessage("Itens armazenados e atualizados com sucesso.");
+        setModalIcon(<CiLogin />);
+        setCorIcone("#009951");
+        setShowModal(true);
+        carregarItens();
+
+      } else {
+        setModalMessage("Erro na transferência de recebimento. Não foi possível atualizar o status.");
+        setModalIcon(<IoWarningOutline />);
+        setCorIcone("#E46962");
+        setShowModal(true);
+      }
+    } catch (error) {
+      console.error(error);
+      setModalMessage("Erro inesperado durante o processo.");
+      setModalIcon(<IoWarningOutline />);
+      setCorIcone("#E46962");
+      setShowModal(true);
+    }
+  
+    setShowReservaModal(false);
+    setItemParaReserva(null);
+    setLocaisReservados([]);
+  };
+  
   const adicionarItem = () => {
     try {
       if (!codigoItem.includes("|") || !codigoItem.includes("/")) {
@@ -126,11 +183,11 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
         setShowModal(true);
         return;
       }
-
+  
       const [codigoItemBase, resto] = codigoItem.split("|");
       const [quantidadeStr, informacoesNota] = resto.split("/");
       const quantidadeParaContar = parseInt(quantidadeStr, 10);
-
+  
       if (isNaN(quantidadeParaContar) || quantidadeParaContar <= 0) {
         setModalIcon(<IoWarningOutline />);
         setCorIcone("#E46962");
@@ -138,24 +195,17 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
         setShowModal(true);
         return;
       }
-
+  
       const chaveDocumentoReconstruida = `${codigoItemBase}/${informacoesNota}`;
       const itemExistente = itens.find((item) => item.codigoInteiro === chaveDocumentoReconstruida);
-
+  
       if (!itemExistente) {
         setModalIcon(<IoWarningOutline />);
         setModalMessage("Item não encontrado na lista.");
         setShowModal(true);
         return;
       }
-
-      if (itemExistente.localizacao !== codigoLocal) {
-        setModalIcon(<IoWarningOutline />);
-        setModalMessage(`O local inserido (${codigoLocal}) não corresponde ao cadastrado.`);
-        setShowModal(true);
-        return;
-      }
-
+  
       if (quantidadeParaContar > itemExistente.qtdeFinal) {
         setModalIcon(<IoWarningOutline />);
         setCorIcone("#E46962");
@@ -163,20 +213,27 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
         setShowModal(true);
         return;
       }
-
-      if (quantidadeParaContar === itemExistente.qtdeFinal) {
-        transferirItem(itemExistente);
-        // setModalIcon(<CiLogin />);
-        // setModalMessage(`Item ${itemExistente.codigoInteiro} alterado para estoque.`);
-        // setShowModal(true);
+  
+      if (itemExistente.localizacao !== codigoLocal) {
+        setItemParaReserva(itemExistente);
+        setQuantidadeRestante(itemExistente.qtdeFinal); // <- agora passa o total correto do item
+        setLocaisReservados([{ local: codigoLocal, quantidade: quantidadeParaContar }]); // <- inicializa
+        setShowReservaModal(true);
+        setCodigoLocal("");
+        setCodigoItem("");
         return;
       }
-
-      // ✅ Armazena o item e inicia a contagem já com a primeira quantidade
+  
+      if (quantidadeParaContar === itemExistente.qtdeFinal) {
+        transferirItem(itemExistente);
+        return;
+      }
+  
+      // ✅ Armazena o item e inicia a contagem normal
       setItemEmContagem(itemExistente);
       setQuantidadeContada(quantidadeParaContar);
       setShowContagemModal(true);
-
+  
       setCodigoLocal("");
       setCodigoItem("");
     } catch (error) {
@@ -186,10 +243,11 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
       setShowModal(true);
     }
   };
+  
 
 
 
-  const confirmarReserva = async (localReserva: string, codigoItem: string) => {
+  const confirmarReserva = async (localReserva: string, codigoItem: string, quantidade: number) => {
     if (!localReserva || !codigoItem) {
       setModalMessage("Local ou item inválido.");
       setModalIcon(<IoWarningOutline />);
@@ -330,6 +388,7 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
         setCorIcone("#009951");
         setModalMessage(`Item ${itemEmContagem.codigoItem} foi transferido para ESTOQUE com quantidade ${itemEmContagem.qtdeFinal}.`);
         setShowModal(true);
+        setShowContagemModal(false);
         carregarItens();
         return;
       }
@@ -440,10 +499,25 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
             onClose={() => setShowContagemModal(false)}
             onConfirm={() => finalizarTransferenciaSemReserva(itemEmContagem)}
             onReservaRestante={(quantidadeInserida) => {
+              const restante = itemEmContagem!.qtdeFinal - quantidadeInserida;
+            
+              // 1. Armazena a quantidade já guardada no local original
+              setLocaisReservados([
+                {
+                  local: itemEmContagem!.localizacao ?? "",
+                  quantidade: quantidadeInserida,
+                },
+              ]);
+            
+              // 2. Seta a quantidade restante
+              setQuantidadeRestante(restante);
+            
+              // 3. Define o item que está sendo reservado
               setItemParaReserva(itemEmContagem);
+            
+              // 4. Fecha modal de contagem e abre de reserva
               setShowContagemModal(false);
               setShowReservaModal(true);
-              setQuantidadeRestante(itemEmContagem.qtdeFinal - quantidadeInserida);
             }}
             qtdeFinal={itemEmContagem.qtdeFinal}
             codigoItem={itemEmContagem.codigoInteiro}
@@ -460,29 +534,13 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
         {showReservaModal && itemParaReserva && (
           <ModalReserva
             onClose={() => setShowReservaModal(false)}
-            onConfirm={confirmarReserva}
-            quantidadeRestante={quantidadeRestante}
+            onConfirm={confirmarReservaFinal}
+            locaisExistentes={locaisReservados}
+            codigoItem={itemParaReserva.codigoInteiro}
+            qtdeRestante={itemParaReserva.qtdeFinal}
+            localOriginal={itemParaReserva.localizacao}
           />
         )}
-
-      {/* {showContagemModal && itemEmContagem && (
-        <ModalContagem
-          onClose={() => setShowContagemModal(false)}
-          onConfirm={() => finalizarTransferenciaSemReserva(itemEmContagem)}
-          qtdeFinal={itemEmContagem.qtdeFinal}
-          codigoItem={itemEmContagem.codigoInteiro}
-          itemCompleto={itemEmContagem}
-          primeiraQuantidade={quantidadeContada}
-          onError={(mensagem) => {
-            setModalMessage(mensagem);
-            setModalIcon(<IoWarningOutline />);
-            setCorIcone("#E46962");
-            setShowModal(true);
-          }}
-        />
-      )} */}
-
-
 
 
     </div>

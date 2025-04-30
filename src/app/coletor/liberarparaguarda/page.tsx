@@ -477,6 +477,8 @@ export default function LiberarParaGuarda() {
             onClose={() => setShowPartialModal(false)}
             onConfirm={(quantidade, observacao) => liberarParcial(quantidade, observacao)}
             qtdeMaxima={itemSelecionado.qtdeFinal}
+            titulo={'Liberação Parcial'} 
+            modo="parcial"
           />
         )}
 

@@ -474,6 +474,8 @@ export default function Transporte() {
             onConfirm={(quantidade, observacao) => confirmarRetrabalho(quantidade, observacao)}
             qtdeMaxima={itemSelecionado.qtdeFinal}
             quantidadeFixa={itemSelecionado.qtdeFinal}
+            titulo={'Enviar para Reconferência'} 
+            modo={"reconferencia"}
           />
         )}
 

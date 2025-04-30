@@ -13,13 +13,15 @@ const ModalAutenticacao: React.FC<ModalAutenticacaoProps> = ({ onClose, onAuthen
   return (
     <div className={styles.modalBackdrop}>
       <div className={styles.modalContent}>
-        <h3>Autenticação Necessária</h3>
-        <label>Matrícula:</label>
-        <input type="text" value={matricula} onChange={(e) => setMatricula(e.target.value)} />
-        
-        <label>Senha:</label>
-        <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
-
+        <h2 className={styles.hdois}>Autenticação Necessária</h2>
+        <div>
+          <label>Matrícula:</label>
+          <input type="text" value={matricula} onChange={(e) => setMatricula(e.target.value)} />
+        </div>
+        <div className={styles.inputSenhaGlobalFix}>
+          <label>Senha:</label>
+          <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
+        </div>
         <div className={styles.actions}>
           <button onClick={() => onAuthenticate(matricula, senha)}>Entrar</button>
           <button onClick={onClose}>Cancelar</button>
