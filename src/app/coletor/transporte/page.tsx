@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import { FaArrowLeft, FaRegEdit, FaRegQuestionCircle } from "react-icons/fa";
+import { FaArrowLeft, FaExclamationCircle, FaRegEdit, FaRegQuestionCircle } from "react-icons/fa";
 import { MdOutlineReportGmailerrorred } from "react-icons/md";
 import { CiLogin, CiCircleRemove  } from "react-icons/ci";
+import { CgDanger } from "react-icons/cg";
 import { IoWarningOutline } from "react-icons/io5";
 import { mockData } from "@/testUtils/mockups/mockData";
 import { ItemColetor } from "@/types/ItemColetor";
@@ -14,6 +15,9 @@ import { AxiosError } from "axios";
 import { APITotvs } from "@/utils/api/endpointsTotvs";
 import ModalAutenticacao from "@/components/ModalAutenticacao/ModalAutenticacao";
 import ModalQuantidade from "@/components/ModalQuantidade/ModalQuantidade";
+import ComProtecao from "@/components/ComProtecao/ComProtecao";
+import bcrypt from "bcryptjs";
+import { sessaoOperador } from "@/utils/auth/storageService";
 
 export default function Transporte() {
   const [codigoItem, setCodigoItem] = useState("");
@@ -95,17 +99,46 @@ export default function Transporte() {
     fecharModalEdicao();
   };
 
-  const autenticarUsuario = (matricula: string, senha: string) => {
-    if (matricula === "admin" && senha === "1234") { // Simulação de admin
+  const autenticarUsuario = async (matricula: string, senha: string) => {
+    try {
+      const res = await APITotvs.get(`/guardaMaterial/matricula?matricula=${matricula}`);
+      const usuario = res.data?.sucesso?.[0];
+
+      if (!usuario) {
+        setModalIcon(<IoWarningOutline />);
+        setCorIcone("#E46962");
+        setModalMessage("Usuário não encontrado");
+        setShowModal(true);
+        return;
+      }
+
+      const senhaValida = await bcrypt.compare(senha, usuario.senha);
+
+      if (!senhaValida) {
+        setModalIcon(<IoWarningOutline />);
+        setCorIcone("#E46962");
+        setModalMessage("Senha incorreta");
+        setShowModal(true);
+        return;
+      }
+
+      if (usuario.tipo !== 2 && usuario.tipo !== 3) {
+        setModalIcon(<IoWarningOutline />);
+        setCorIcone("#E46962");
+        setModalMessage("Usuário não possui permissão para prosseguir");
+        setShowModal(true);
+        return;
+      }
+
       setShowAuthModal(false);
       setShowPartialModal(true);
-    } else {
+    } catch (error) {
       setModalIcon(<IoWarningOutline />);
       setCorIcone("#E46962");
-      setModalMessage("Acesso negado! Matrícula ou senha incorreta.");
+      setModalMessage("Erro ao autenticar usuário. Tente novamente.");
       setShowModal(true);
     }
-  };  
+  }; 
 
   const adicionarItem = async () => {
     try {      
@@ -138,6 +171,7 @@ export default function Transporte() {
             const novaQuantidade = (itemExistente.qtdeAtual ?? 0) + quantidadeParaContar;
 
             if (novaQuantidade > itemExistente.qtdeFinal) {
+                console.log("entrou em novaQuantidade > itemExistente.qtdeFinal")
                 setModalIcon(<IoWarningOutline />);
                 setCorIcone("#E46962");
                 setModalMessage(
@@ -176,8 +210,17 @@ export default function Transporte() {
       const documento = response.data.documentos?.[0];
   
       if (documento) {
+        console.log(documento.status)
+
 
         if(documento.quantidadeTransferencia < quantidadeParaContar){
+          if(documento.status === 2){
+            setModalIcon(<IoWarningOutline />);
+            setCorIcone("#E46962");
+            setModalMessage(`Item ${documento.item} não possui o status "Liberado Para Guarda".\nStatus Atual: Controle de Qualidade`);
+            setShowModal(true);
+            return;
+          }
           setModalIcon(<IoWarningOutline />);
           setCorIcone("#E46962");
           setModalMessage(
@@ -253,6 +296,7 @@ export default function Transporte() {
 
   const finalizarProcesso = async () => {
     const itensFaltando = itens.some((item) => (item.qtdeAtual || 0) < item.qtdeFinal);
+    let usuarioLogado = sessaoOperador.getMatriculaOperador();
   
     if (itensFaltando) {
       setModalIcon(<IoWarningOutline />);
@@ -267,7 +311,7 @@ export default function Transporte() {
         chaveDocumento: item.codigoInteiro,
         novoStatus: 3,
         quantidadeTransferencia: item.qtdeAtual,
-        usuario: "jgriti",
+        usuario: usuarioLogado,
       })),
     };
 
@@ -309,7 +353,7 @@ export default function Transporte() {
     if (!itemSelecionado) return;
 
     try {
-      let usuarioLogado = "jgriti";
+      let usuarioLogado = sessaoOperador.getMatriculaOperador();
 
       const payload = {
         documentos: [{ chaveDocumento: itemSelecionado.codigoInteiro, usuario: usuarioLogado, novoStatus: 5, observacao: obs, quantidadeTransferencia: qtd}],
@@ -361,6 +405,7 @@ export default function Transporte() {
   };
 
   return (
+    <ComProtecao>
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>INICIAR TRANSPORTE</h1>
@@ -420,12 +465,15 @@ export default function Transporte() {
                       isLast ? styles["rounded-bottom-right"] : ""
                     }`}
                   >
+                    <div className={styles.btnReconferencia}>
                       <button
                         className={styles.editButton}
                         onClick={() => abrirModalAutenticacao(item)}
                       >
-                      <MdOutlineReportGmailerrorred />
+                        <FaExclamationCircle />
                       </button>
+                    </div>
+
                   </td>
                 </tr>
               );
@@ -485,5 +533,6 @@ export default function Transporte() {
       )}
 
     </div>
+    </ComProtecao>
   );
 }

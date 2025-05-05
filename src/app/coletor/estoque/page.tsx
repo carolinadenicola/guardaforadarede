@@ -14,6 +14,8 @@ import { APITotvs } from "@/utils/api/endpointsTotvs";
 import ModalReserva from "@/components/ModalReserva/ModalReserva";
 import ModalContagem from "@/components/ModalContagem/ModalContagem";
 import { RESPONSE_LIMIT_DEFAULT } from "next/dist/server/api-utils";
+import ComProtecao from "@/components/ComProtecao/ComProtecao";
+import { sessaoOperador } from "@/utils/auth/storageService";
 
 export default function Estoque() {
   const [codigoLocal, setCodigoLocal] = useState("");
@@ -67,7 +69,7 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
     try {
       setIsLoading(true);
       // const usuarioLogado = localStorage.getItem("usuario");
-      const usuarioLogado = "jgriti";
+      let usuarioLogado = sessaoOperador.getMatriculaOperador();
 
       // if (!usuarioLogado) {
       //   console.warn("Usuário não encontrado no localStorage.");
@@ -125,7 +127,7 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
     if (!itemParaReserva) return;
   
     try {
-      const usuarioLogado = "jgriti";
+      let usuarioLogado = sessaoOperador.getMatriculaOperador();
       const payloadTransferencia = {
         documentos: [
           {
@@ -201,6 +203,7 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
   
       if (!itemExistente) {
         setModalIcon(<IoWarningOutline />);
+        setCorIcone("#E46962");
         setModalMessage("Item não encontrado na lista.");
         setShowModal(true);
         return;
@@ -266,7 +269,7 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
     }
   
     try {
-      const usuarioLogado = "jgriti";
+      let usuarioLogado = sessaoOperador.getMatriculaOperador();
       const payload = {
         documentos: [{
           chaveDocumento: itemParaReserva.codigoInteiro,
@@ -293,7 +296,7 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
 
   const transferirItem = async (item: ItemColetor) => {
     try {
-      const usuarioLogado = "jgriti"
+      let usuarioLogado = sessaoOperador.getMatriculaOperador();
       console.log("chegou aqui")
       const payload = {
         documentos: [{
@@ -357,7 +360,7 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
 
   async function finalizarTransferenciaSemReserva(itemEmContagem: ItemColetor) {
     try {
-      const usuarioLogado = "jgriti"
+      let usuarioLogado = sessaoOperador.getMatriculaOperador();
       console.log("chegou aqui")
 
       const payload = {
@@ -412,6 +415,7 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
   }
 
   return (
+    <ComProtecao>
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>ADICIONAR AO ESTOQUE</h1>
@@ -544,5 +548,6 @@ const [quantidadeRestante, setQuantidadeRestante] = useState(0); // Quantidade r
 
 
     </div>
+    </ComProtecao>
   );
 }

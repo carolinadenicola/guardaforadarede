@@ -12,6 +12,9 @@ import { ItemColetor } from "@/types/ItemColetor";
 import ModalVariosBotoes from "@/components/ModalVariosBotoes/ModalVariosBotoes";
 import ModalAutenticacao from "@/components/ModalAutenticacao/ModalAutenticacao";
 import ModalQuantidade from "@/components/ModalQuantidade/ModalQuantidade";
+import ComProtecao from "@/components/ComProtecao/ComProtecao";
+import bcrypt from "bcryptjs";
+import { sessaoOperador } from "@/utils/auth/storageService";
 
 export default function ControleCQ() {
   const [itens, setItens] = useState<ItemColetor[]>([]);
@@ -73,7 +76,7 @@ export default function ControleCQ() {
     if (!itemSelecionado) return;
 
     try {
-      let usuarioLogado = "jgriti";
+      let usuarioLogado = sessaoOperador.getMatriculaOperador();
       let obs = "";
 
       const payload = {
@@ -123,14 +126,43 @@ export default function ControleCQ() {
   };
 
 
-  const autenticarUsuario = (matricula: string, senha: string) => {
-    if (matricula === "admin" && senha === "1234") { // Simulação de admin
+  const autenticarUsuario = async (matricula: string, senha: string) => {
+    try {
+      const res = await APITotvs.get(`/guardaMaterial/matricula?matricula=${matricula}`);
+      const usuario = res.data?.sucesso?.[0];
+
+      if (!usuario) {
+        setModalIcon(<IoWarningOutline />);
+        setCorIcone("#E46962");
+        setModalMessage("Usuário não encontrado");
+        setShowModal(true);
+        return;
+      }
+
+      const senhaValida = await bcrypt.compare(senha, usuario.senha);
+
+      if (!senhaValida) {
+        setModalIcon(<IoWarningOutline />);
+        setCorIcone("#E46962");
+        setModalMessage("Senha incorreta");
+        setShowModal(true);
+        return;
+      }
+
+      if (usuario.tipo !== 2 && usuario.tipo !== 3) {
+        setModalIcon(<IoWarningOutline />);
+        setCorIcone("#E46962");
+        setModalMessage("Usuário não possui permissão para prosseguir");
+        setShowModal(true);
+        return;
+      }
+
       setShowAuthModal(false);
       setShowQuantityModal(true);
-    } else {
+    } catch (error) {
       setModalIcon(<IoWarningOutline />);
       setCorIcone("#E46962");
-      setModalMessage("Acesso negado! Matrícula ou senha incorreta.");
+      setModalMessage("Erro ao autenticar usuário. Tente novamente.");
       setShowModal(true);
     }
   };
@@ -139,7 +171,8 @@ export default function ControleCQ() {
     if (!itemSelecionado) return;
 
     try {
-      let usuarioLogado = "jgriti";
+      
+      let usuarioLogado = sessaoOperador.getMatriculaOperador();
 
       const payload = {
         documentos: [{ 
@@ -195,6 +228,7 @@ export default function ControleCQ() {
 
 
   return (
+    <ComProtecao>
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>CONTROLE DE QUALIDADE</h1>
@@ -293,5 +327,6 @@ export default function ControleCQ() {
 
       
     </div>
+    </ComProtecao>
   );
 }

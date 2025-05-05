@@ -11,6 +11,8 @@ import ModalConfirmar from "@/components/ModalConfirmar/ModalConfirmar";
 import styles from "./CQ.module.scss";
 import { AxiosError } from "axios";
 import { APITotvs } from "@/utils/api/endpointsTotvs";
+import ComProtecao from "@/components/ComProtecao/ComProtecao";
+import { sessaoOperador } from "@/utils/auth/storageService";
 
 export default function ControleQualidade() {
   const [codigoItem, setCodigoItem] = useState("");
@@ -210,6 +212,8 @@ export default function ControleQualidade() {
 
   const finalizarProcesso = async () => {
     const itensFaltando = itens.some((item) => (item.qtdeAtual || 0) < item.qtdeFinal);
+    
+    let usuarioLogado = sessaoOperador.getMatriculaOperador();
   
     if (itensFaltando) {
       setModalIcon(<IoWarningOutline />);
@@ -223,7 +227,7 @@ export default function ControleQualidade() {
       documentos: itens.map((item) => ({
         chaveDocumento: item.codigoInteiro,
         novoStatus: 2,
-        usuario: "jgriti",
+        usuario: usuarioLogado,
       })),
     };
 
@@ -264,6 +268,7 @@ export default function ControleQualidade() {
   };
   
   return (
+    <ComProtecao>
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>ENVIAR PARA CQ</h1>
@@ -371,5 +376,6 @@ export default function ControleQualidade() {
         />
       )}
     </div>
+    </ComProtecao>
   );
 }

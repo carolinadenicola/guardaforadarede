@@ -7,6 +7,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { Operador } from "@/types/Operador";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/ModalPadrao/ModalPadrao";
+import ComProtecao from "@/components/ComProtecao/ComProtecao";
 
 export default function HomeColetor() {
     const [matricula, setMatricula] = useState<string>('');
@@ -37,6 +38,7 @@ export default function HomeColetor() {
         };
 
     return(
+        <ComProtecao>
         <html>
             <body>
                 <div className={style.homeColetorPage}>
@@ -74,6 +76,7 @@ export default function HomeColetor() {
                 {showModal && <Modal message={modalMessage} onClose={() => setShowModal(false)} />}
             </body>
         </html>
+        </ComProtecao>
     );
 
 }
